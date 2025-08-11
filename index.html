@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rifa Club Wolves 🐺</title>
+  <link rel="stylesheet" href="css/estilos.css">
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header>
+    <img src="img/logo.png" alt="Club Wolves" class="logo">
+    <h1>Rifa ProFondos Torneos Club Wolves</h1>
+    <p>Gánate <strong>$1.200.000</strong> en efectivo</p>
+    <p>Juega el 25 de agosto con las 3 últimas cifras del Chontico noche</p>
+  </header>
+
+  <section class="rifa-info">
+    <p><strong>Organizador:</strong> Sammuel David Tobar Mora</p>
+    <p><strong>Valor boleta:</strong> $20.000</p>
+    <p><strong>Pago por Nequi:</strong> 3204845400 (Banco Nequi)</p>
+    <p><strong>Correo de reservas:</strong> <a href="mailto:oscartobar857@gmail.com">oscartobar857@gmail.com</a></p>
+  </section>
+
+  <section class="numeros">
+    <h2>Números disponibles</h2>
+    <div id="lista-numeros" class="grid"></div>
+  </section>
+
+  <section class="formulario">
+    <h2>Reserva tu número</h2>
+    <form id="reservaForm">
+      <label>Nombre:<input type="text" name="nombre" required></label>
+      <label>Dirección:<input type="text" name="direccion" required></label>
+      <label>Teléfono:<input type="tel" name="telefono" required></label>
+      <label>Email:<input type="email" name="email" required></label>
+      <label>Método de pago:
+        <select name="pago" required>
+          <option value="Nequi">Nequi</option>
+          <option value="PSE">PSE</option>
+        </select>
+      </label>
+      <label>Número de rifa:<input type="number" name="numero" required></label>
+      <button type="submit">Reservar</button>
+    </form>
+    <p id="mensaje"></p>
+  </section>
+
+  <footer>
+    <p>© 2025 Club Wolves Candelaria | Diseñado para recaudar fondos deportivos</p>
+    <p><a href="admin.html">Panel admin (acceso restringido)</a></p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

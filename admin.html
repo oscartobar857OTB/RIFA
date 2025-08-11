@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin - Rifa Club Wolves</title>
+<link rel="stylesheet" href="css/estilos.css">
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <header><h1>Panel de administración</h1></header>
+  <section class="admin-login" id="loginSection">
+    <h2>Acceso</h2>
+    <label>Usuario: <input id="adminUser" type="text"></label>
+    <label>Contraseña: <input id="adminPass" type="password"></label>
+    <button id="loginBtn">Entrar</button>
+    <p id="loginMsg"></p>
+  </section>
+
+  <section id="adminPanel" style="display:none;">
+    <h2>Reservas</h2>
+    <table id="tablaReservas">
+      <thead><tr><th>Nombre</th><th>Teléfono</th><th>Email</th><th>Número</th><th>Pago</th><th>Acciones</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+<script>
+const ADMIN_USER = "oscartobar857";
+const ADMIN_PASS = "0S483tob";
+</script>
+
+<script src="js/app_admin.js"></script>
+</body>
+</html>
