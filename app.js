@@ -1,47 +1,45 @@
-let numerosDisponibles = [];
+// Importar SDK de Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
-// Cargar números desde numeros.json
-fetch("numeros.json")
-    .then(res => res.json())
-    .then(data => {
-        numerosDisponibles = data.numeros_disponibles;
-        mostrarNumeros();
-    })
-    .catch(err => console.error("Error cargando números:", err));
+// Configuración de tu proyecto Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyCFsqGe_mO4_Ffo3utLuyRdZsHwi_0sQhY",
+  authDomain: "rifa-sammuel.firebaseapp.com",
+  projectId: "rifa-sammuel",
+  storageBucket: "rifa-sammuel.firebasestorage.app",
+  messagingSenderId: "55269628049",
+  appId: "1:55269628049:web:ce7ebe29c76d00e8170730",
+  measurementId: "G-DTPC1ZCGCM"
+};
 
-function mostrarNumeros() {
-    const contenedor = document.getElementById("lista-numeros");
-    contenedor.innerHTML = "";
-    numerosDisponibles.forEach(num => {
-        const div = document.createElement("div");
-        div.classList.add("numero");
-        div.textContent = num;
-        contenedor.appendChild(div);
-    });
-}
+// Inicializar Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-document.getElementById("form-reserva").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const nombre = document.getElementById("nombre").value.trim();
-    const direccion = document.getElementById("direccion").value.trim();
-    const telefono = document.getElementById("telefono").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const numero = parseInt(document.getElementById("numero").value.trim());
-    const pago = document.getElementById("pago").value;
-
-    if (!numerosDisponibles.includes(numero)) {
-        document.getElementById("mensaje").textContent = "Ese número ya fue reservado o no existe.";
-        return;
+// Mostrar números disponibles en tiempo real
+const lista = document.getElementById("lista-numeros");
+onSnapshot(collection(db, "numeros"), (snapshot) => {
+  lista.innerHTML = "";
+  snapshot.forEach((doc) => {
+    if (!doc.data().reservado) {
+      const div = document.createElement("div");
+      div.classList.add("numero");
+      div.textContent = doc.id;
+      lista.appendChild(div);
     }
+  });
+});
 
-    // Simulación de envío (Aquí iría la lógica para guardar en Firebase o enviar correo)
-    console.log("Reserva enviada:", { nombre, direccion, telefono, email, numero, pago });
+// Manejo de formulario
+document.getElementById("form-reserva").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  
+  const numero = document.getElementById("numero").value.trim();
+  const docRef = doc(db, "numeros", numero);
 
-    // Eliminar número reservado de la lista
-    numerosDisponibles = numerosDisponibles.filter(n => n !== numero);
-    mostrarNumeros();
+  await updateDoc(docRef, { reservado: true });
 
-    document.getElementById("mensaje").textContent = `Número ${numero} reservado con éxito.`;
-    document.getElementById("form-reserva").reset();
+  document.getElementById("mensaje").textContent = `Número ${numero} reservado con éxito.`;
+  document.getElementById("form-reserva").reset();
 });
