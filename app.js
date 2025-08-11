@@ -4,13 +4,13 @@ import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot } from "h
 
 // Configuración de tu proyecto Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyCFsqGe_mO4_Ffo3utLuyRdZsHwi_0sQhY",
-  authDomain: "rifa-sammuel.firebaseapp.com",
-  projectId: "rifa-sammuel",
-  storageBucket: "rifa-sammuel.firebasestorage.app",
-  messagingSenderId: "55269628049",
-  appId: "1:55269628049:web:ce7ebe29c76d00e8170730",
-  measurementId: "G-DTPC1ZCGCM"
+  apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
+  authDomain: "rifasammuel.firebaseapp.com",
+  projectId: "rifasammuel",
+  storageBucket: "rifasammuel.firebasestorage.app",
+  messagingSenderId: "707645550462",
+  appId: "1:707645550462:web:42735685340fb79e5d8d2f",
+  measurementId: "G-W3HY4MHHV4"
 };
 
 // Inicializar Firebase
