@@ -3,52 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifa Solidaria Sammuel Tobar</title>
+    <title>Rifa Sammuel Tobar</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f6fa;
-            color: #2f3640;
-            text-align: center;
-            padding: 20px;
-        }
-        h1 {
-            color: #273c75;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-            gap: 10px;
-            max-width: 500px;
-            margin: 20px auto;
-        }
-        .number {
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
+        h1 { color: #222; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
+        .numero {
             padding: 10px;
+            text-align: center;
             border-radius: 8px;
-            font-weight: bold;
             cursor: pointer;
-            background: #44bd32;
-            color: white;
-            transition: background 0.3s;
+            font-weight: bold;
         }
-        .number.reserved {
-            background: #e84118;
-            cursor: not-allowed;
-        }
+        .disponible { background: #4caf50; color: white; }
+        .reservado { background: #f44336; color: white; cursor: not-allowed; }
     </style>
 </head>
 <body>
+    <h1>Rifa Solidaria Club Wolves Candelaria</h1>
+    <p>Seleccione un número disponible para reservar.</p>
 
-    <h1>Rifa Solidaria</h1>
-    <p>Premio: $1.200.000 - Valor: $20.000</p>
-    <p>Reserva tu número y apoya a Sammuel Tobar 🏀</p>
+    <div id="numeros" class="grid"></div>
 
-    <div id="numbers" class="grid"></div>
-
+    <!-- Firebase -->
     <script type="module">
-        // Importar Firebase v10
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getFirestore, collection, doc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
         // Configuración Firebase
         const firebaseConfig = {
@@ -61,58 +41,35 @@
             measurementId: "G-W3HY4MHHV4"
         };
 
-        // Inicializar Firebase
+        // Inicializar
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        const numbersContainer = document.getElementById("numbers");
+        const numerosDiv = document.getElementById("numeros");
 
-        // Generar números del 000 al 999
-        function generateNumbers() {
-            for (let i = 0; i < 1000; i++) {
-                let num = i.toString().padStart(3, "0");
-                let div = document.createElement("div");
-                div.classList.add("number");
-                div.textContent = num;
-                div.onclick = () => reserveNumber(num);
-                numbersContainer.appendChild(div);
-            }
-        }
+        // Escucha en tiempo real de la colección "numeros"
+        onSnapshot(collection(db, "numeros"), (snapshot) => {
+            numerosDiv.innerHTML = "";
+            snapshot.forEach((docSnap) => {
+                const data = docSnap.data();
+                const numDiv = document.createElement("div");
+                numDiv.textContent = data.numero;
+                numDiv.classList.add("numero");
+                numDiv.classList.add(data.estado === "disponible" ? "disponible" : "reservado");
 
-        // Escuchar cambios en tiempo real
-        function listenReservations() {
-            onSnapshot(collection(db, "reservas"), snapshot => {
-                document.querySelectorAll(".number").forEach(el => el.classList.remove("reserved"));
-                snapshot.forEach(doc => {
-                    let reservedNum = doc.id;
-                    let el = Array.from(document.querySelectorAll(".number")).find(e => e.textContent === reservedNum);
-                    if (el) el.classList.add("reserved");
-                });
+                if (data.estado === "disponible") {
+                    numDiv.addEventListener("click", async () => {
+                        if (confirm(`¿Reservar el número ${data.numero}?`)) {
+                            await updateDoc(doc(db, "numeros", docSnap.id), {
+                                estado: "reservado"
+                            });
+                            alert(`Número ${data.numero} reservado.`);
+                        }
+                    });
+                }
+                numerosDiv.appendChild(numDiv);
             });
-        }
-
-        // Reservar número
-        async function reserveNumber(num) {
-            const element = document.querySelector(`.number:nth-child(${parseInt(num)+1})`);
-            if (element.classList.contains("reserved")) {
-                alert("Este número ya está reservado.");
-                return;
-            }
-            let nombre = prompt(`Ingresa tu nombre para reservar el número ${num}`);
-            if (!nombre) return;
-
-            await setDoc(doc(db, "reservas", num), {
-                nombre: nombre,
-                fecha: new Date().toISOString()
-            });
-
-            alert(`Número ${num} reservado con éxito.`);
-        }
-
-        generateNumbers();
-        listenReservations();
-
+        });
     </script>
-
 </body>
 </html>
