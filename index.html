@@ -1,35 +1,63 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rifa Sammuel</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RIFA SAMMUEL</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module" src="app.js" defer></script>
 </head>
 <body>
-  <h1>Rifa Sammuel</h1>
+    <header>
+        <h1>🎯 RIFA SAMMUEL 🎯</h1>
+        <p>Ayúdame a llegar a la final T&E en Medellín 🏀</p>
+    </header>
 
-  <h2>Números Disponibles</h2>
-  <ul id="lista-numeros"></ul>
+    <main>
+        <section id="numeros-section">
+            <h2>Números disponibles</h2>
+            <div id="numeros-container"></div>
+        </section>
 
-  <h2>Reservar Número</h2>
-  <form id="form-reserva">
-    <label>Número:
-      <select id="numero-select"></select>
-    </label><br><br>
-    <label>Nombre:
-      <input type="text" id="nombre" required>
-    </label><br><br>
-    <label>Dirección:
-      <input type="text" id="direccion" required>
-    </label><br><br>
-    <label>Teléfono:
-      <input type="text" id="telefono" required>
-    </label><br><br>
-    <button type="submit">Reservar</button>
-  </form>
+        <section id="form-section">
+            <h2>Reservar número</h2>
+            <form id="reserva-form">
+                <label>Nombre:
+                    <input type="text" id="nombre" required>
+                </label>
 
-  <script type="module" src="app.js"></script>
+                <label>Teléfono:
+                    <input type="tel" id="telefono" required>
+                </label>
+
+                <label>¿Pagó?
+                    <select id="pago" required>
+                        <option value="">Seleccionar</option>
+                        <option value="Sí">Sí</option>
+                        <option value="No">No</option>
+                    </select>
+                </label>
+
+                <label>Método de pago:
+                    <select id="metodoPago">
+                        <option value="">Seleccionar</option>
+                        <option value="Nequi">Nequi</option>
+                        <option value="PSE">PSE</option>
+                        <option value="Efectivo">Efectivo</option>
+                    </select>
+                </label>
+
+                <label>Número reservado:
+                    <input type="text" id="numero" readonly required>
+                </label>
+
+                <button type="submit">Reservar</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <p>💙 Gracias por tu apoyo 💙</p>
+    </footer>
 </body>
 </html>
-
-// reservarNumero("079", "Juan Pérez", "Calle 123", "3001234567");
