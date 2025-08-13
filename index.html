@@ -1,33 +1,97 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Números Reservados</title>
-  <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rifa Sammuel Tobar</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background: linear-gradient(to bottom, #001f3f, #0074D9);
+      color: white;
+      min-height: 100vh;
+    }
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      font-weight: bold;
+      color: orange;
+    }
+    .card {
+      background-color: rgba(255, 255, 255, 0.1);
+      border: none;
+      color: white;
+    }
+    table {
+      background-color: white;
+      color: black;
+    }
+    .disponible {
+      background-color: #28a745;
+      color: white;
+      font-weight: bold;
+    }
+    .reservado {
+      background-color: #dc3545;
+      color: white;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <h1>🎟️ Números Reservados</h1>
-  
-  <table id="tablaNumeros">
-    <thead>
-      <tr>
-        <th>Número</th>
-        <th>Nombre</th>
-        <th>Teléfono</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Aquí se llenan los datos desde Firebase -->
-    </tbody>
-  </table>
 
-  <!-- Firebase v10 -->
+  <h1>Rifa Solidaria Sammuel Tobar 🏀</h1>
+
+  <div class="container">
+    <div class="row">
+      <!-- Formulario -->
+      <div class="col-md-4">
+        <div class="card p-3">
+          <h4>Reservar Número</h4>
+          <form id="reservaForm">
+            <div class="mb-2">
+              <label>Nombre:</label>
+              <input type="text" class="form-control" id="nombre" required>
+            </div>
+            <div class="mb-2">
+              <label>Teléfono:</label>
+              <input type="tel" class="form-control" id="telefono" required>
+            </div>
+            <div class="mb-2">
+              <label>Número de rifa:</label>
+              <input type="number" class="form-control" id="numero" min="1" max="100" required>
+            </div>
+            <button class="btn btn-warning w-100" type="submit">Reservar</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="col-md-8">
+        <div class="card p-3">
+          <h4>Números de la Rifa</h4>
+          <table class="table table-bordered text-center">
+            <thead>
+              <tr>
+                <th>Número</th>
+                <th>Estado</th>
+                <th>Nombre</th>
+                <th>Teléfono</th>
+              </tr>
+            </thead>
+            <tbody id="tablaRifa"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // Configuración
+    // Configuración Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
       authDomain: "rifasammuel.firebaseapp.com",
@@ -42,24 +106,49 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    // Referencia a la colección
-    const colRef = collection(db, "numeros");
+    // Capturar formulario
+    const reservaForm = document.getElementById("reservaForm");
+    reservaForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById("nombre").value;
+      const telefono = document.getElementById("telefono").value;
+      const numero = document.getElementById("numero").value;
 
-    // Escuchar cambios en tiempo real
-    onSnapshot(colRef, (snapshot) => {
-      const tbody = document.querySelector("#tablaNumeros tbody");
-      tbody.innerHTML = "";
+      try {
+        await setDoc(doc(db, "rifa", numero), {
+          nombre,
+          telefono,
+          estado: "Reservado"
+        });
+        reservaForm.reset();
+        alert("Número reservado con éxito ✅");
+      } catch (error) {
+        console.error("Error al reservar: ", error);
+      }
+    });
+
+    // Escuchar en tiempo real
+    const tablaRifa = document.getElementById("tablaRifa");
+
+    onSnapshot(collection(db, "rifa"), (snapshot) => {
+      const datos = {};
       snapshot.forEach(doc => {
-        const data = doc.data();
-        const fila = `
+        datos[doc.id] = doc.data();
+      });
+
+      tablaRifa.innerHTML = "";
+      for (let i = 1; i <= 100; i++) {
+        const info = datos[i] || { estado: "Disponible", nombre: "", telefono: "" };
+        const estadoClase = info.estado === "Disponible" ? "disponible" : "reservado";
+        tablaRifa.innerHTML += `
           <tr>
-            <td>${data.numero || "-"}</td>
-            <td>${data.nombre || "-"}</td>
-            <td>${data.telefono || "-"}</td>
+            <td>${i}</td>
+            <td class="${estadoClase}">${info.estado}</td>
+            <td>${info.nombre || "-"}</td>
+            <td>${info.telefono || "-"}</td>
           </tr>
         `;
-        tbody.innerHTML += fila;
-      });
+      }
     });
   </script>
 </body>
