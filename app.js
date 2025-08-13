@@ -1,6 +1,6 @@
 // Importar SDK de Firebase
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-import { getFirestore, collection, getDocs, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+import { getFirestore, collection, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
 
 // Configuración de tu proyecto Firebase
 const firebaseConfig = {
@@ -17,21 +17,30 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Mostrar números disponibles en tiempo real
-const lista = document.getElementById("lista-numeros");
+// Elementos HTML
+const listaDisponibles = document.getElementById("lista-numeros");
+const listaReservados = document.getElementById("lista-reservados");
+
+// Mostrar en tiempo real disponibles y reservados
 onSnapshot(collection(db, "numeros"), (snapshot) => {
-  lista.innerHTML = "";
-  snapshot.forEach((doc) => {
-    if (!doc.data().reservado) {
-      const div = document.createElement("div");
-      div.classList.add("numero");
-      div.textContent = doc.id;
-      lista.appendChild(div);
+  listaDisponibles.innerHTML = "";
+  listaReservados.innerHTML = "";
+  
+  snapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    const div = document.createElement("div");
+    div.classList.add("numero");
+    div.textContent = docSnap.id;
+
+    if (!data.reservado) {
+      listaDisponibles.appendChild(div);
+    } else {
+      listaReservados.appendChild(div);
     }
   });
 });
 
-// Manejo de formulario
+// Manejo del formulario
 document.getElementById("form-reserva").addEventListener("submit", async (e) => {
   e.preventDefault();
   
