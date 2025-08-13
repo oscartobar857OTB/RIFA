@@ -1,64 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Números Reservados</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Números Reservados</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Lista de Números Reservados</h1>
+  <h1>🎟️ Números Reservados</h1>
+  
+  <table id="tablaNumeros">
+    <thead>
+      <tr>
+        <th>Número</th>
+        <th>Nombre</th>
+        <th>Teléfono</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Aquí se llenan los datos desde Firebase -->
+    </tbody>
+  </table>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Número</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-            </tr>
-        </thead>
-        <tbody id="tabla-numeros">
-            <tr><td colspan="3">Cargando datos...</td></tr>
-        </tbody>
-    </table>
+  <!-- Firebase v10 -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
 
-    <!-- Firebase v8 -->
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    // Configuración
+    const firebaseConfig = {
+      apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
+      authDomain: "rifasammuel.firebaseapp.com",
+      projectId: "rifasammuel",
+      storageBucket: "rifasammuel.firebasestorage.app",
+      messagingSenderId: "707645550462",
+      appId: "1:707645550462:web:42735685340fb79e5d8d2f",
+      measurementId: "G-W3HY4MHHV4"
+    };
 
-    <script>
-        // Configuración de tu proyecto Firebase
-        var firebaseConfig = {
-            apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
-            authDomain: "rifasammuel.firebaseapp.com",
-            projectId: "rifasammuel",
-            storageBucket: "rifasammuel.firebasestorage.app",
-            messagingSenderId: "707645550462",
-            appId: "1:707645550462:web:42735685340fb79e5d8d2f",
-            measurementId: "G-W3HY4MHHV4"
-        };
-        firebase.initializeApp(firebaseConfig);
-        var db = firebase.firestore();
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        function cargarNumeros() {
-            db.collection("numeros").orderBy("numero", "asc").onSnapshot((querySnapshot) => {
-                const tabla = document.getElementById("tabla-numeros");
-                tabla.innerHTML = "";
-                querySnapshot.forEach((doc) => {
-                    let data = doc.data();
-                    let fila = `
-                        <tr>
-                            <td>${data.numero}</td>
-                            <td>${data.nombre || "-"}</td>
-                            <td>${data.telefono || "-"}</td>
-                        </tr>
-                    `;
-                    tabla.innerHTML += fila;
-                });
-            });
-        }
+    // Referencia a la colección
+    const colRef = collection(db, "numeros");
 
-        cargarNumeros();
-    </script>
+    // Escuchar cambios en tiempo real
+    onSnapshot(colRef, (snapshot) => {
+      const tbody = document.querySelector("#tablaNumeros tbody");
+      tbody.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const fila = `
+          <tr>
+            <td>${data.numero || "-"}</td>
+            <td>${data.nombre || "-"}</td>
+            <td>${data.telefono || "-"}</td>
+          </tr>
+        `;
+        tbody.innerHTML += fila;
+      });
+    });
+  </script>
 </body>
 </html>
