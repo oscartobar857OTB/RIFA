@@ -1,75 +1,96 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifa Sammuel Tobar</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; background: #f5f5f5; }
-        h1 { color: #222; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 10px; }
-        .numero {
-            padding: 10px;
-            text-align: center;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .disponible { background: #4caf50; color: white; }
-        .reservado { background: #f44336; color: white; cursor: not-allowed; }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Rifa Sammuel</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f8; margin: 0; padding: 20px; }
+    h1 { text-align: center; color: #333; }
+    .numero { display: inline-block; margin: 8px; padding: 12px; background: #fff; border-radius: 8px; cursor: pointer; border: 1px solid #ccc; transition: 0.3s; }
+    .numero:hover { background: #e8f0ff; }
+    .reservado { background: #ccc; color: #777; cursor: not-allowed; }
+    form { margin-top: 20px; background: white; padding: 15px; border-radius: 8px; max-width: 300px; margin-left: auto; margin-right: auto; box-shadow: 0px 2px 5px rgba(0,0,0,0.1);}
+    input { width: 100%; padding: 8px; margin: 6px 0; border-radius: 4px; border: 1px solid #ccc; }
+    button { background: #007bff; color: white; padding: 10px; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background: #0056b3; }
+  </style>
 </head>
 <body>
-    <h1>Rifa Solidaria Club Wolves Candelaria</h1>
-    <p>Seleccione un número disponible para reservar.</p>
+  <h1>Reserva tu número</h1>
 
-    <div id="numeros" class="grid"></div>
+  <div id="listaNumeros"></div>
 
-    <!-- Firebase -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  <form id="reservaForm" style="display:none;">
+    <h3>Reservar número <span id="numeroSeleccionado"></span></h3>
+    <input type="text" id="nombre" placeholder="Tu nombre" required />
+    <input type="text" id="telefono" placeholder="Tu teléfono" required />
+    <button type="submit">Confirmar Reserva</button>
+  </form>
 
-        // Configuración Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
-            authDomain: "rifasammuel.firebaseapp.com",
-            projectId: "rifasammuel",
-            storageBucket: "rifasammuel.firebasestorage.app",
-            messagingSenderId: "707645550462",
-            appId: "1:707645550462:web:42735685340fb79e5d8d2f",
-            measurementId: "G-W3HY4MHHV4"
-        };
+  <script type="module">
+    // Importar Firebase v10
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js";
+    import { getFirestore, collection, query, where, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js";
 
-        // Inicializar
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+    // Configuración Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
+      authDomain: "rifasammuel.firebaseapp.com",
+      projectId: "rifasammuel",
+      storageBucket: "rifasammuel.appspot.com",
+      messagingSenderId: "707645550462",
+      appId: "1:707645550462:web:3be86db15f66cfdcfe31f4"
+    };
 
-        const numerosDiv = document.getElementById("numeros");
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-        // Escucha en tiempo real de la colección "numeros"
-        onSnapshot(collection(db, "numeros"), (snapshot) => {
-            numerosDiv.innerHTML = "";
-            snapshot.forEach((docSnap) => {
-                const data = docSnap.data();
-                const numDiv = document.createElement("div");
-                numDiv.textContent = data.numero;
-                numDiv.classList.add("numero");
-                numDiv.classList.add(data.estado === "disponible" ? "disponible" : "reservado");
+    const listaNumeros = document.getElementById("listaNumeros");
+    const reservaForm = document.getElementById("reservaForm");
+    const numeroSeleccionadoSpan = document.getElementById("numeroSeleccionado");
 
-                if (data.estado === "disponible") {
-                    numDiv.addEventListener("click", async () => {
-                        if (confirm(`¿Reservar el número ${data.numero}?`)) {
-                            await updateDoc(doc(db, "numeros", docSnap.id), {
-                                estado: "reservado"
-                            });
-                            alert(`Número ${data.numero} reservado.`);
-                        }
-                    });
-                }
-                numerosDiv.appendChild(numDiv);
-            });
-        });
-    </script>
+    let numeroSeleccionadoId = null;
+
+    // Escuchar en tiempo real números disponibles
+    const q = query(collection(db, "numeros"), where("reservado", "==", false));
+    onSnapshot(q, (snapshot) => {
+      listaNumeros.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const div = document.createElement("div");
+        div.classList.add("numero");
+        div.textContent = data.numero;
+        div.onclick = () => seleccionarNumero(docSnap.id, data.numero);
+        listaNumeros.appendChild(div);
+      });
+    });
+
+    function seleccionarNumero(id, numero) {
+      numeroSeleccionadoId = id;
+      numeroSeleccionadoSpan.textContent = numero;
+      reservaForm.style.display = "block";
+    }
+
+    // Confirmar reserva
+    reservaForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nombre = document.getElementById("nombre").value.trim();
+      const telefono = document.getElementById("telefono").value.trim();
+
+      if (!numeroSeleccionadoId || !nombre || !telefono) return;
+
+      await updateDoc(doc(db, "numeros", numeroSeleccionadoId), {
+        nombre: nombre,
+        telefono: telefono,
+        reservado: true
+      });
+
+      alert("Número reservado con éxito");
+      reservaForm.reset();
+      reservaForm.style.display = "none";
+    });
+  </script>
 </body>
 </html>
