@@ -1,6 +1,6 @@
 // Importar SDK de Firebase
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js";
-import { getFirestore, collection, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.5.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js";
+import { getFirestore, collection, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js";
 
 // Configuración de tu proyecto Firebase
 const firebaseConfig = {
