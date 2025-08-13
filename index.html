@@ -5,59 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RIFA SAMMUEL</title>
     <link rel="stylesheet" href="styles.css">
-    <script type="module" src="app.js" defer></script>
 </head>
 <body>
     <header>
-        <h1>🎯 RIFA SAMMUEL 🎯</h1>
-        <p>Ayúdame a llegar a la final T&E en Medellín 🏀</p>
+        <h1>🏀 RIFA SAMMUEL 🏀</h1>
+        <p>Apoya el sueño deportivo de Sammuel Tobar</p>
     </header>
 
     <main>
-        <section id="numeros-section">
-            <h2>Números disponibles</h2>
-            <div id="numeros-container"></div>
+        <section class="form-section">
+            <h2>Registrar Compra</h2>
+            <form id="compraForm">
+                <label for="numero">Número:</label>
+                <input type="text" id="numero" name="numero" required>
+
+                <label for="nombre">Nombre del comprador:</label>
+                <input type="text" id="nombre" name="nombre" required>
+
+                <label for="telefono">Teléfono:</label>
+                <input type="text" id="telefono" name="telefono" required>
+
+                <label for="pago">Pago:</label>
+                <select id="pago" name="pago" required>
+                    <option value="">Seleccione...</option>
+                    <option value="Sí">Sí</option>
+                    <option value="No">No</option>
+                </select>
+
+                <label for="metodoPago">Método de Pago:</label>
+                <select id="metodoPago" name="metodoPago" required>
+                    <option value="">Seleccione...</option>
+                    <option value="Nequi">Nequi</option>
+                    <option value="Efectivo">Efectivo</option>
+                    <option value="Después">Después</option>
+                </select>
+
+                <button type="submit">Guardar</button>
+            </form>
         </section>
 
-        <section id="form-section">
-            <h2>Reservar número</h2>
-            <form id="reserva-form">
-                <label>Nombre:
-                    <input type="text" id="nombre" required>
-                </label>
-
-                <label>Teléfono:
-                    <input type="tel" id="telefono" required>
-                </label>
-
-                <label>¿Pagó?
-                    <select id="pago" required>
-                        <option value="">Seleccionar</option>
-                        <option value="Sí">Sí</option>
-                        <option value="No">No</option>
-                    </select>
-                </label>
-
-                <label>Método de pago:
-                    <select id="metodoPago">
-                        <option value="">Seleccionar</option>
-                        <option value="Nequi">Nequi</option>
-                        <option value="PSE">PSE</option>
-                        <option value="Efectivo">Efectivo</option>
-                    </select>
-                </label>
-
-                <label>Número reservado:
-                    <input type="text" id="numero" readonly required>
-                </label>
-
-                <button type="submit">Reservar</button>
-            </form>
+        <section class="list-section">
+            <h2>Números Disponibles</h2>
+            <ul id="numerosList"></ul>
         </section>
     </main>
 
     <footer>
-        <p>💙 Gracias por tu apoyo 💙</p>
+        <p>© 2025 Rifa Solidaria - Club Wolves Candelaria</p>
     </footer>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
