@@ -1,52 +1,44 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rifa Club Wolves</title>
-    <link rel="stylessheet" href="styles.css"> <!-- Cambia a tu nombre real -->
-</head>
-<body>
-    <header>
-        <h1>Rifa ProFondos Viaje a Medellín Club Wolves 🐺</h1>
-        <p>Organizador: Sammuel David Tobar Mora</p>
-        <p>Valor: $20.000</p>
-        <p>Banco: Nequi (3204845400)</p>
-        <p>Correo reservas: oscartobar857@gmail.com</p>
-    </header>
+// Configuración Firebase (reemplaza con tus credenciales)
+var firebaseConfig = {
+    apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
+    authDomain: "rifasammuel.firebaseapp.com",
+    projectId: "rifasammuel",
+    storageBucket: "rifasammuel.firebasestorage.app",
+    messagingSenderId: "707645550462",
+    appId: "1:707645550462:web:42735685340fb79e5d8d2f",
+    measurementId: "G-W3HY4MHHV4"
+};
 
-    <main>
-        <section>
-            <h2>Números disponibles</h2>
-            <div id="lista-numeros" class="grid"></div>
-        </section>
+// Inicializar Firebase
+firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
 
-        <section>
-            <h2>Números reservados</h2>
-            <div id="lista-reservados" class="grid"></div>
-        </section>
+// Cargar números reservados
+function cargarReservas() {
+    const tbody = document.getElementById('reservas-body');
+    tbody.innerHTML = "<tr><td colspan='3'>Cargando datos...</td></tr>";
 
-        <section>
-            <h2>Reserva tu número</h2>
-            <form id="form-reserva">
-                <input type="text" id="nombre" placeholder="Nombre" required>
-                <input type="text" id="direccion" placeholder="Dirección" required>
-                <input type="tel" id="telefono" placeholder="Teléfono" required>
-                <input type="email" id="email" placeholder="Email" required>
-                <input type="number" id="numero" placeholder="Número a reservar" required>
-                <select id="pago" required>
-                    <option value="">Método de pago</option>
-                    <option value="nequi">Nequi</option>
-                    <option value="pse">PSE</option>
-                    <option value="EFECTIVO">Efectivo</option>
-                    <option value="PAGA DESPUES">Paga después</option>
-                </select>
-                <button type="submit">Reservar</button>
-            </form>
-            <p id="mensaje"></p>
-        </section>
-    </main>
+    db.collection("numeros")
+        .where("reservado", "==", true)
+        .orderBy("numero")
+        .onSnapshot(snapshot => {
+            tbody.innerHTML = "";
+            if (snapshot.empty) {
+                tbody.innerHTML = "<tr><td colspan='3'>No hay reservas registradas</td></tr>";
+                return;
+            }
+            snapshot.forEach(doc => {
+                const data = doc.data();
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${data.numero}</td>
+                    <td>${data.nombre || "-"}</td>
+                    <td>${data.telefono || "-"}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        });
+}
 
-    <script type="module" src="app.js"></script>
-</body>
-</html>
+cargarReservas();
+
