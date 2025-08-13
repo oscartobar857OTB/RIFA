@@ -1,155 +1,118 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rifa Sammuel Tobar</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    body {
-      background: linear-gradient(to bottom, #001f3f, #0074D9);
-      color: white;
-      min-height: 100vh;
-    }
-    h1 {
-      text-align: center;
-      margin: 20px 0;
-      font-weight: bold;
-      color: orange;
-    }
-    .card {
-      background-color: rgba(255, 255, 255, 0.1);
-      border: none;
-      color: white;
-    }
-    table {
-      background-color: white;
-      color: black;
-    }
-    .disponible {
-      background-color: #28a745;
-      color: white;
-      font-weight: bold;
-    }
-    .reservado {
-      background-color: #dc3545;
-      color: white;
-      font-weight: bold;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rifa Solidaria Sammuel Tobar</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            color: #2f3640;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            color: #273c75;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+            gap: 10px;
+            max-width: 500px;
+            margin: 20px auto;
+        }
+        .number {
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #44bd32;
+            color: white;
+            transition: background 0.3s;
+        }
+        .number.reserved {
+            background: #e84118;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
 
-  <h1>Rifa Solidaria Sammuel Tobar 🏀</h1>
+    <h1>Rifa Solidaria</h1>
+    <p>Premio: $1.200.000 - Valor: $20.000</p>
+    <p>Reserva tu número y apoya a Sammuel Tobar 🏀</p>
 
-  <div class="container">
-    <div class="row">
-      <!-- Formulario -->
-      <div class="col-md-4">
-        <div class="card p-3">
-          <h4>Reservar Número</h4>
-          <form id="reservaForm">
-            <div class="mb-2">
-              <label>Nombre:</label>
-              <input type="text" class="form-control" id="nombre" required>
-            </div>
-            <div class="mb-2">
-              <label>Teléfono:</label>
-              <input type="tel" class="form-control" id="telefono" required>
-            </div>
-            <div class="mb-2">
-              <label>Número de rifa:</label>
-              <input type="number" class="form-control" id="numero" min="1" max="100" required>
-            </div>
-            <button class="btn btn-warning w-100" type="submit">Reservar</button>
-          </form>
-        </div>
-      </div>
+    <div id="numbers" class="grid"></div>
 
-      <!-- Tabla -->
-      <div class="col-md-8">
-        <div class="card p-3">
-          <h4>Números de la Rifa</h4>
-          <table class="table table-bordered text-center">
-            <thead>
-              <tr>
-                <th>Número</th>
-                <th>Estado</th>
-                <th>Nombre</th>
-                <th>Teléfono</th>
-              </tr>
-            </thead>
-            <tbody id="tablaRifa"></tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </div>
+    <script type="module">
+        // Importar Firebase v10
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getFirestore, collection, doc, getDocs, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+        // Configuración Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
+            authDomain: "rifasammuel.firebaseapp.com",
+            projectId: "rifasammuel",
+            storageBucket: "rifasammuel.firebasestorage.app",
+            messagingSenderId: "707645550462",
+            appId: "1:707645550462:web:42735685340fb79e5d8d2f",
+            measurementId: "G-W3HY4MHHV4"
+        };
 
-    // Configuración Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyDo3cgRT87JQkV9kgJG2mrPnUkb5HugH9Q",
-      authDomain: "rifasammuel.firebaseapp.com",
-      projectId: "rifasammuel",
-      storageBucket: "rifasammuel.firebasestorage.app",
-      messagingSenderId: "707645550462",
-      appId: "1:707645550462:web:42735685340fb79e5d8d2f",
-      measurementId: "G-W3HY4MHHV4"
-    };
+        // Inicializar Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-    // Inicializar Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
+        const numbersContainer = document.getElementById("numbers");
 
-    // Capturar formulario
-    const reservaForm = document.getElementById("reservaForm");
-    reservaForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const nombre = document.getElementById("nombre").value;
-      const telefono = document.getElementById("telefono").value;
-      const numero = document.getElementById("numero").value;
+        // Generar números del 000 al 999
+        function generateNumbers() {
+            for (let i = 0; i < 1000; i++) {
+                let num = i.toString().padStart(3, "0");
+                let div = document.createElement("div");
+                div.classList.add("number");
+                div.textContent = num;
+                div.onclick = () => reserveNumber(num);
+                numbersContainer.appendChild(div);
+            }
+        }
 
-      try {
-        await setDoc(doc(db, "rifa", numero), {
-          nombre,
-          telefono,
-          estado: "Reservado"
-        });
-        reservaForm.reset();
-        alert("Número reservado con éxito ✅");
-      } catch (error) {
-        console.error("Error al reservar: ", error);
-      }
-    });
+        // Escuchar cambios en tiempo real
+        function listenReservations() {
+            onSnapshot(collection(db, "reservas"), snapshot => {
+                document.querySelectorAll(".number").forEach(el => el.classList.remove("reserved"));
+                snapshot.forEach(doc => {
+                    let reservedNum = doc.id;
+                    let el = Array.from(document.querySelectorAll(".number")).find(e => e.textContent === reservedNum);
+                    if (el) el.classList.add("reserved");
+                });
+            });
+        }
 
-    // Escuchar en tiempo real
-    const tablaRifa = document.getElementById("tablaRifa");
+        // Reservar número
+        async function reserveNumber(num) {
+            const element = document.querySelector(`.number:nth-child(${parseInt(num)+1})`);
+            if (element.classList.contains("reserved")) {
+                alert("Este número ya está reservado.");
+                return;
+            }
+            let nombre = prompt(`Ingresa tu nombre para reservar el número ${num}`);
+            if (!nombre) return;
 
-    onSnapshot(collection(db, "rifa"), (snapshot) => {
-      const datos = {};
-      snapshot.forEach(doc => {
-        datos[doc.id] = doc.data();
-      });
+            await setDoc(doc(db, "reservas", num), {
+                nombre: nombre,
+                fecha: new Date().toISOString()
+            });
 
-      tablaRifa.innerHTML = "";
-      for (let i = 1; i <= 100; i++) {
-        const info = datos[i] || { estado: "Disponible", nombre: "", telefono: "" };
-        const estadoClase = info.estado === "Disponible" ? "disponible" : "reservado";
-        tablaRifa.innerHTML += `
-          <tr>
-            <td>${i}</td>
-            <td class="${estadoClase}">${info.estado}</td>
-            <td>${info.nombre || "-"}</td>
-            <td>${info.telefono || "-"}</td>
-          </tr>
-        `;
-      }
-    });
-  </script>
+            alert(`Número ${num} reservado con éxito.`);
+        }
+
+        generateNumbers();
+        listenReservations();
+
+    </script>
+
 </body>
 </html>
